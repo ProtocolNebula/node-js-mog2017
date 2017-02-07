@@ -5,13 +5,13 @@ class Zone {
 
     constructor(players) {
         this.players = []
-        for (let n = 1; n <= players; n++) {
-            let name = "Player " + n
+        for (let n = 0; n < players; n++) {
+            let name = "Player " + (n + 1)
             let hp = getRandom(10, 20)
             let atk = getRandom(3,5)
             let def = getRandom(3,5)
 
-            this.players[n] = new Player(name, hp, atk, def)
+            this.players.push(new Player(name, hp, atk, def))
         }
     }
 
@@ -24,12 +24,15 @@ class Zone {
         this.players.forEach((player1) => {
             console.log ("====== NUEVO MOVIMIENTO ======")
             //var player1 = that.drawPlayer(null)
-            console.log (player1.name + " vs ")
+            
             var player2 = this.drawPlayer(player1)
             
+            if (player2 && player2.stillAlive()) {
+                console.log (player1.name + " vs ")
+                player1.hit(player2)
+                console.log(player2)
+            }
             
-            player1.hit(player2)
-            console.log(player2)
         })
         
         // Filtarmos los jugadores vivos
@@ -42,8 +45,10 @@ class Zone {
         console.log("")
         console.log("Jugadores vivos a final de turno: " + this.players.length)
         console.log(this.players)
-        if (this.players.length < 2) {
+        if (this.players.length == 1) {
             console.log("Victoria para " + this.players[0].name)
+        } else if (this.players.length == 0) {
+            console.log("Todos han muerto")
         } else {
             // Bind para conservar el this
             setTimeout(this.battle.bind(this), 10)
@@ -52,16 +57,19 @@ class Zone {
 
 
     drawPlayer(excludedPlayer)  {
-        var player
-        do {
-            var id = getRandom(1, this.players.length)
-            player = this.players[id]
+        if (this.players.length > 1) {
+            var player
+            do {
+                var id = getRandom(0, this.players.length)
+                player = this.players[id]
+            } while ((excludedPlayer && player.name == excludedPlayer.name))
+            //!player.stillAlive() ||  // <-- causa bug si no quedan vivos
             
-        } while (!player.stillAlive() || (excludedPlayer && player.name == excludedPlayer.name))
-        
-        console.log("Escogido jugador " + player.name)
+            console.log("Escogido jugador " + player.name)
 
-        return player
+            return player
+        }
+        return false;
     }
 }
 
